@@ -85,20 +85,17 @@ public class EnumHandler implements CheckHandler<CheckEnum> {
     }
 
     private NoneEmptySet<Object> getStringValues(String value, String separator){
-        return NoneEmptySet.ofIgnoreEmpty(value.split(separator))
-                .map(s->(Object)s);
+        return NoneEmptySet.ofIgnoreEmpty(value.split(separator));
     }
 
     private NoneEmptySet<Object> getNumberValues(String value, String separator){
         return NoneEmptySet.ofIgnoreEmpty(value.split(separator))
-                .map(Double::parseDouble)
-                .map(s->(Object)s);
+                .map(Double::parseDouble);
     }
 
     private NoneEmptySet<Object> getEnums(Class<? extends Enum> enumType){
         return NoneEmptySet.ofIgnoreEmpty(enumType.getEnumConstants())
-                .map(Enum::name)
-                .map(object -> (Object) object);
+                .map(Enum::name);
     }
     
     private NoneEmptySet<Object> getEnumValues(Class<? extends Enum> enumType, String enumField){
