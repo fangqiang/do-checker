@@ -6,6 +6,8 @@ import org.reflections.scanners.SubTypesScanner;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -86,5 +88,11 @@ public class ReflectUtil {
 
     public static boolean isNumericType(Class fieldType) {
         return fieldType.getSuperclass() == Number.class;
+    }
+
+    public static Object invoke(Object instance, String methodName) throws InvocationTargetException, IllegalAccessException, NoSuchMethodException {
+        Method declaredMethod = instance.getClass().getDeclaredMethod(methodName);
+        declaredMethod.setAccessible(true);
+        return declaredMethod.invoke(instance);
     }
 }

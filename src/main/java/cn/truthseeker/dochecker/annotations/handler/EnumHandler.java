@@ -2,16 +2,20 @@ package cn.truthseeker.dochecker.annotations.handler;
 
 import cn.truthseeker.container.SimpleCache;
 import cn.truthseeker.container.safe.NoneEmptySet;
-import cn.truthseeker.container.util.Emptys;
-import cn.truthseeker.container.util.Utils;
+import cn.truthseeker.util.Emptys;
+import cn.truthseeker.util.Utils;
 import cn.truthseeker.dochecker.annotations.CheckEnum;
 import cn.truthseeker.dochecker.annotations.DefaultEnum;
 import cn.truthseeker.dochecker.exception.DoCheckException;
 import cn.truthseeker.dochecker.util.ReflectUtil;
+import org.apache.commons.lang3.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Description:
@@ -85,23 +89,31 @@ public class EnumHandler implements CheckHandler<CheckEnum> {
     }
 
     private NoneEmptySet<Object> getStringValues(String value, String separator){
-        return NoneEmptySet.ofIgnoreEmpty(value.split(separator));
+        return Arrays.stream(value.split(separator))
+                .filter(StringUtils::isNotEmpty)
+                .map(String::trim)
+                .collect(NoneEmptySet.toSet());
     }
 
     private NoneEmptySet<Object> getNumberValues(String value, String separator){
-        return NoneEmptySet.ofIgnoreEmpty(value.split(separator))
-                .map(Double::parseDouble);
+        return Arrays.stream(value.split(separator))
+                .filter(StringUtils::isNotEmpty)
+                .map(String::trim)
+                .map(Double::parseDouble)
+                .collect(NoneEmptySet.toSet());
     }
 
     private NoneEmptySet<Object> getEnums(Class<? extends Enum> enumType){
-        return NoneEmptySet.ofIgnoreEmpty(enumType.getEnumConstants())
-                .map(Enum::name);
+        return Arrays.stream(enumType.getEnumConstants())
+                .map(Enum::name)
+                .collect(NoneEmptySet.toSet());
     }
     
     private NoneEmptySet<Object> getEnumValues(Class<? extends Enum> enumType, String enumField){
-        return NoneEmptySet.ofIgnoreEmpty(enumType.getEnumConstants())
+        return Arrays.stream(enumType.getEnumConstants())
                 .map(constant -> ReflectUtil.getFieldValue(constant, enumField))
-                .map(object -> object instanceof Number ? ((Number) object).doubleValue() : object);
+                .map(object -> object instanceof Number ? ((Number) object).doubleValue() : object)
+                .collect(NoneEmptySet.toSet());
     }
 
     private Optional<Class> getEnumFieldType(Class<? extends Enum> enumType, String enumField) {

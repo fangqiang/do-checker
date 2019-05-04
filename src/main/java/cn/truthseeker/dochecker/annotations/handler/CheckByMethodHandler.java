@@ -2,6 +2,7 @@ package cn.truthseeker.dochecker.annotations.handler;
 
 import cn.truthseeker.dochecker.annotations.CheckByMethod;
 import cn.truthseeker.dochecker.exception.DoCheckException;
+import cn.truthseeker.dochecker.util.ReflectUtil;
 
 import java.lang.reflect.Method;
 
@@ -40,9 +41,7 @@ public class CheckByMethodHandler implements CheckHandler<CheckByMethod> {
     public void verifyValue(Object instance, Class clazz, Class fieldType, String fieldName, Object fieldValue, CheckByMethod annotation) throws DoCheckException {
         try {
             String methodName = annotation.value();
-            Method declaredMethod = clazz.getDeclaredMethod(methodName);
-            declaredMethod.setAccessible(true);
-            boolean ok = (boolean) declaredMethod.invoke(instance);
+            boolean ok = (boolean) ReflectUtil.invoke(instance, methodName);
             isCheckTrue(ok, clazz, fieldName, fieldValue, annotation);
         } catch (Throwable e) {
             throw new DoCheckException(buildCheckErrorMessage(e.getMessage(), clazz, fieldName, fieldValue, annotation));
