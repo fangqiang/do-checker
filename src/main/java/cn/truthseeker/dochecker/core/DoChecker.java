@@ -1,6 +1,7 @@
 package cn.truthseeker.dochecker.core;
 
 
+import cn.truthseeker.container.safe.Collections2;
 import cn.truthseeker.container.safe.Maps;
 import cn.truthseeker.container.safe.NoneEmptyList;
 import cn.truthseeker.container.safe.NoneEmptyMap;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @Description:
@@ -119,7 +121,8 @@ public class DoChecker {
         Optional<NoneEmptyMap<Field, List<Annotation>>> opt = metaCache.getNullable(instance.getClass());
         opt.ifPresent(fieldListMap -> fieldListMap
                 .filterByKey(k -> checkFields.contains(k.getName()))
-                .forEach((k, v) -> checkEveryField(instance, k, v)));
+                .forEach((k, v) -> checkEveryField(instance, k, v))
+        );
     }
 
     private void checkEveryField(Object instance, Field field, List<Annotation> annotations) {
@@ -133,15 +136,12 @@ public class DoChecker {
 
     private NoneEmptyMap<Field, List<Annotation>> verifyCheckableClass(Class clazz) throws DoCheckException {
         List<Field> fields = ReflectUtil.getAllFieldsIncludeInherited(clazz);
-        Map<Field, List<Annotation>> fieldListMap = Maps.listToMap(fields, field -> getValidAnnotation(clazz, field));
+        Map<Field, List<Annotation>> fieldListMap = Collections2.toHashMap(fields, field -> getValidAnnotation(clazz, field));
         return NoneEmptyMap.ofIgnoreEmpty(fieldListMap);
     }
 
     private List<Annotation> getValidAnnotation(Class clazz, Field field) {
-        // 找出注册过的注解
-        Annotation[] allAnnotation = ReflectUtil.getAllAnnotation(field);
-        // 1、删掉没有注册的注解。  2、校验每个注解
-        NoneEmptyList<Annotation> annotations = NoneEmptyList.ofIgnoreEmpty(allAnnotation);
+        NoneEmptyList<Annotation> annotations = NoneEmptyList.ofIgnoreEmpty(ReflectUtil.getAllAnnotation(field));
         annotations.removeIf(annotation -> !handlerRepo.contains(annotation.annotationType()));
         annotations.forEach(annotation -> handlerRepo.verifyUsage(clazz, field.getType(), field.getName(), annotation));
         return annotations;

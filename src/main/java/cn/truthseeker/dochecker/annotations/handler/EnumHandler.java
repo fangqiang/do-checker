@@ -61,9 +61,9 @@ public class EnumHandler implements CheckHandler<CheckEnum> {
             isVerifyTrue(Emptys.isNotEmpty(separator), "separator can't be null", clazz, fieldType, fieldName, annotation);
 
             NoneEmptySet<Object> split = fieldType == String.class ? getStringValues(value, separator) : getNumberValues(value, separator);
-            enumCache.put(annotation, split);
-
             isVerifyTrue(split.size() > 0, "no enum value", clazz, fieldType, fieldName, annotation);
+
+            enumCache.put(annotation, split);
         } else {
             if(Emptys.isEmpty(enumField)){
                 isVerifyTrue(fieldType == String.class, "field type must be string", clazz, fieldType, fieldName, annotation);
