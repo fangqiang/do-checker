@@ -35,9 +35,7 @@ DELETE FROM TTT WHERE `name`=?;
 4. 该库只对字段校验【绝不修改字段】
 
 
-
-- 解释：虽然数据库也能对字段做一些简单校验，但是很多业务校验是没法做的。如果字段校验既放在数据库，也放在程序中，则非常不利于维护。
-- 常见的情况是：前端有校验，后端有校验，数据库有校验。但仍然不能清楚的知道一个字段都做了什么校验，或者你要查看全流程代码才能知道。
+PS：虽然数据库也能对字段做一些简单校验，但是很多业务校验是没法做的。如果字段校验规则既存在于数据库也存在程序中，则非常不利于维护。常见的情况是：前端有校验，后端有校验，数据库有校验。但仍然不能清楚的知道一个字段都做了什么校验，或者你要查看全流程代码才能知道。
 
 ## 使用方式
 
@@ -65,11 +63,13 @@ public class TestDO {                           // 支持继承其他DO
     @CheckNotNull                               // 如果为null，则抛出异常，默认允许为null
     private Long id;
  
-    @CheckNotNull                               // 如果为null，则抛出异常，默认允许为null
     @CheckExpress("18<age && age<60")           // 校验是否满足表达式（java语法的表达式，`age`为变量名（要跟字段名保持一致），返回值必须是boolean类型），返回false则抛出异常
-    @CheckEnum("20,21.0")                       // 校验枚举类型
-    private Integer age;                        // 如有多有多个注解，则必须满足所有注解的约束
+    private Integer age;                        
  
+    @CheckEnum("basketball,football")           // 校验枚举类型
+    // @CheckEnum(enumType = HobbyEnum.class)   // 校验枚举类型，按java枚举类校验
+    private String hobby;
+     
     @CheckStringFormat(FormatType.VALID_JSON)   // 如果是空字符串或者空json则抛出异常（如："", " ", {},[] 均不合法）
     private String name;
     
