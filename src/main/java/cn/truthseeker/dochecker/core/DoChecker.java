@@ -137,11 +137,11 @@ public class DoChecker {
     private NoneEmptyMap<Field, List<Annotation>> verifyCheckableClass(Class clazz) throws DoCheckException {
         List<Field> fields = ReflectUtil.getAllFieldsIncludeInherited(clazz);
         Map<Field, List<Annotation>> fieldListMap = Collections2.toHashMap(fields, field -> getValidAnnotation(clazz, field));
-        return NoneEmptyMap.ofIgnoreEmpty(fieldListMap);
+        return NoneEmptyMap.extractFrom(fieldListMap);
     }
 
     private List<Annotation> getValidAnnotation(Class clazz, Field field) {
-        NoneEmptyList<Annotation> annotations = NoneEmptyList.ofIgnoreEmpty(ReflectUtil.getAllAnnotation(field));
+        NoneEmptyList<Annotation> annotations = NoneEmptyList.extractFrom(ReflectUtil.getAllAnnotation(field));
         annotations.removeIf(annotation -> !handlerRepo.contains(annotation.annotationType()));
         annotations.forEach(annotation -> handlerRepo.verifyUsage(clazz, field.getType(), field.getName(), annotation));
         return annotations;
